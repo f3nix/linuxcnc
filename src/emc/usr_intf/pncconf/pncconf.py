@@ -2016,7 +2016,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                 dev = i.find("DEVICE").text
                 chan = i.find("CHANNEL").text
                 discov_sserial.append((int(port),int(chan),dev))
-            print discov_sserial
+            print 'discovered sserial:', discov_sserial
 
             pins = root.findall(".//pins")[0]
             temppinlist = []
@@ -2087,7 +2087,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                         print tempfunc,founddevice
                         # this auto selects the sserial 7i76 mode 0 card for sserial 0 and 2
                         # as the 5i25/7i76 uses some of the sserial channels for it's pins.
-                        if boardname == "5i25":
+                        if boardname in ("5i25","7i92"):
                             if "7i77_7i76" in firmname:
                                 if tempfunc == "TXDATA1": convertedname = _PD.SS7I77M0
                                 elif tempfunc == "TXDATA2": convertedname = _PD.SS7I77M1
@@ -2200,7 +2200,9 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             time.sleep(.001)
             halrun.close()
 
-        cmd ="""gksudo "sh -c 'mesaflash --device %s';'mesaflash --device %s --sserial';'mesaflash --device %s --readhmid' " """%(devicename,devicename,devicename)
+        #cmd ="""gksudo "sh -c 'mesaflash --device %s';'mesaflash --device %s --sserial';'mesaflash --device %s --readhmid' " """%(devicename,devicename,devicename)
+        cmd ="""  mesaflash --device %s;mesaflash --device %s --sserial;mesaflash --device %s --readhmid  """%(devicename,devicename,devicename)
+
         discover = subprocess.Popen([cmd], shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE )
         output = discover.communicate()[0]
         textbuffer = self.widgets.textoutput.get_buffer()
@@ -2378,7 +2380,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         firmname = "~/mesa%d_discovered.xml"%boardnum
         filename = os.path.expanduser(firmname)
         DOC.writexml(open(filename, "wb"), addindent="  ", newl="\n")
-        return firmname,filename
+        return BOARDNAME, firmname, filename
 
     def add_device_rule(self):
         text = []

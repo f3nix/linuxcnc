@@ -865,10 +865,12 @@ class Pages:
             self.a.warning_dialog(text,True)
             print 'OOPS no board found!'
         elif not info =='':
-            firmname, path = self.a.parse_discovery(info,boardnum=0)
+            boardname, firmname, path = self.a.parse_discovery(info,boardnum=0)
             firmdata = self.a.parse_xml( board,firmname,path)
+            boardname = 'Discovered:%s'% boardname
             self._p.MESA_FIRMWAREDATA.append(firmdata)
             self._p.MESA_INTERNAL_FIRMWAREDATA.append(firmdata)
+            self._p.MESA_BOARDNAMES.append(boardname)
             # add firmname t0 combo box if it's not there
             model = self.w.mesa0_firmware.get_model()
             flag = True
@@ -883,6 +885,22 @@ class Pages:
                 for search,item in enumerate(model):
                     if model[search][0]  == firmname:
                         self.w["mesa0_firmware"].set_active(search)
+                        self.a.on_mesa_component_value_changed(None,0)
+                        break
+
+            model = self.w.mesa0_boardtitle.get_model()
+            flag = True
+            for search,item in enumerate(model):
+                if model[search][0]  == boardname:
+                    flag = False
+                    break
+            if flag:
+                model.append((boardname,))
+                search = 0
+                model = self.w["mesa0_boardtitle"].get_model()
+                for search,item in enumerate(model):
+                    if model[search][0]  == firmname:
+                        self.w["mesa0_boardtitle"].set_active(search)
                         self.a.on_mesa_component_value_changed(None,0)
                         break
 #************
